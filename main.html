@@ -44,6 +44,10 @@ button {
     cursor: pointer;
 }
 
+button:hover {
+    background: #0072ff;
+}
+
 .card {
     margin: 30px auto;
     padding: 20px;
@@ -73,7 +77,7 @@ Esam Kora School
 
 <script>
 async function getResult() {
-    let seat = document.getElementById("seat").value;
+    let seat = document.getElementById("seat").value.trim();
 
     let response = await fetch("results.csv");
     let data = await response.text();
@@ -82,12 +86,15 @@ async function getResult() {
 
     let found = false;
 
-    rows.forEach(row => {
+    // تجاهل أول سطر (العناوين)
+    rows.slice(1).forEach(row => {
         if (!row.trim()) return;
 
         let cols = row.split(",");
 
-        if (cols[0].trim() == seat.trim()) {
+        let seatNumber = cols[0].replace(/\r/g, "").trim();
+
+        if (seatNumber === seat) {
             document.getElementById("result").innerHTML = `
                 <div class="card">
                     <h3>${cols[1]}</h3>
