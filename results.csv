@@ -1,2 +1,6 @@
-Seat,Name,grade,Total
-6610,Ashraf,,380
+seat,name,grade,total,status
+101,Ahmed Ali,3 Sec,280,ناجح
+102,Mohamed Tamer,3 Sec,250,ناجح
+103,Ali Hassan,3 Sec,200,راسب
+104,Omar Khaled,3 Sec,290,ناجح
+105,Youssef Adel,3 Sec,270,ناجح
