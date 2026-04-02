@@ -82,25 +82,28 @@ async function getResult() {
     let response = await fetch("results.csv");
     let data = await response.text();
 
-    let rows = data.split("\n");
-
+    let rows = data.split("\n").slice(1); // تجاهل العناوين
     let found = false;
 
-    // تجاهل أول سطر (العناوين)
-    rows.slice(1).forEach(row => {
+    rows.forEach(row => {
         if (!row.trim()) return;
 
         let cols = row.split(",");
-
-        let seatNumber = cols[0].replace(/\r/g, "").trim();
+        let seatNumber = cols[0].replace(/\r|\n/g, "").trim();
 
         if (seatNumber === seat) {
             document.getElementById("result").innerHTML = `
                 <div class="card">
                     <h3>${cols[1]}</h3>
                     <p>الصف: ${cols[2]}</p>
-                    <p>المجموع: ${cols[3]}</p>
-                    <p>الحالة: ${cols[4]}</p>
+                    <p>Math: ${cols[3]}</p>
+                    <p>Physics: ${cols[4]}</p>
+                    <p>Chemistry: ${cols[5]}</p>
+                    <p>Biology: ${cols[6]}</p>
+                    <p>English: ${cols[7]}</p>
+                    <p>Computer: ${cols[8]}</p>
+                    <p>المجموع: ${cols[9]}</p>
+                    <p>الحالة: ${cols[10]}</p>
                 </div>
             `;
             found = true;
@@ -116,6 +119,5 @@ async function getResult() {
     }
 }
 </script>
-
 </body>
 </html>
