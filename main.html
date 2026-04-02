@@ -75,7 +75,7 @@ Esam Kora School
 async function getResult() {
     let seat = document.getElementById("seat").value;
 
-    let response = await fetch("https://raw.githubusercontent.com/tabdo2048-alt/school55/main/results.csv");
+    let response = await fetch("results.csv");
     let data = await response.text();
 
     let rows = data.split("\n");
