@@ -1,8 +1,4 @@
-seat,name,grade,total,status
-101,Ahmed Ali,3 Sec,280,ناجح
-102,Mohamed Tamer,3 Sec,250,ناجح
-103,Ali Hassan,3 Sec,200,راسب
-104,Omar Khaled,3 Sec,290,ناجح
-105,Youssef Adel,3 Sec,270,ناجح
-106,Sara Ahmed,3 Sec,260,ناجح
-107,Laila Samir,3 Sec,230,راسب
+seat,name,grade,Math,Physics,Chemistry,Biology,English,Computer,total,status
+101,Ahmed Ali,3 Sec,50,45,40,42,48,49,274,ناجح
+102,Mohamed Tamer,3 Sec,40,38,45,43,42,42,250,ناجح
+103,Ali Hassan,3 Sec,30,25,40,35,35,35,200,راسب
