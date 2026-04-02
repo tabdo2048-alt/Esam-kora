@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Admin - Esam Kora</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #1e1e2f;
+    color: white;
+    text-align: center;
+}
+
+input {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 8px;
+    background: #00c6ff;
+    color: white;
+    cursor: pointer;
+}
+
+.card {
+    background: #2c2c3e;
+    padding: 15px;
+    margin: 10px auto;
+    width: 300px;
+    border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🔐 تسجيل دخول الأدمن</h2>
+
+<div id="login">
+    <input type="password" id="pass" placeholder="كلمة السر">
+    <br>
+    <button onclick="login()">دخول</button>
+</div>
+
+<div id="panel" style="display:none;">
+    <h2>لوحة التحكم</h2>
+
+    <input id="seat" placeholder="رقم الجلوس"><br>
+    <input id="name" placeholder="الاسم"><br>
+    <input id="grade" placeholder="الصف"><br>
+
+    <input id="m1" placeholder="Math"><br>
+    <input id="m2" placeholder="Physics"><br>
+    <input id="m3" placeholder="Chemistry"><br>
+    <input id="m4" placeholder="Biology"><br>
+    <input id="m5" placeholder="English"><br>
+    <input id="m6" placeholder="Computer"><br>
+
+    <button onclick="addStudent()">➕ إضافة</button>
+    <button onclick="exportCSV()">📤 تحميل CSV</button>
+
+    <div id="list"></div>
+</div>
+
+<script>
+let password = "1234"; // غيرها براحتك
+let students = [];
+
+function login() {
+    let p = document.getElementById("pass").value;
+
+    if (p === password) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+    } else {
+        alert("❌ كلمة السر غلط");
+    }
+}
+
+function addStudent() {
+    let seat = document.getElementById("seat").value.trim();
+    let name = document.getElementById("name").value.trim();
+    let grade = document.getElementById("grade").value.trim();
+
+    let m1 = parseInt(document.getElementById("m1").value) || 0;
+    let m2 = parseInt(document.getElementById("m2").value) || 0;
+    let m3 = parseInt(document.getElementById("m3").value) || 0;
+    let m4 = parseInt(document.getElementById("m4").value) || 0;
+    let m5 = parseInt(document.getElementById("m5").value) || 0;
+    let m6 = parseInt(document.getElementById("m6").value) || 0;
+
+    let total = m1 + m2 + m3 + m4 + m5 + m6;
+    let status = total >= 200 ? "ناجح" : "راسب";
+
+    let student = {
+        seat, name, grade, m1, m2, m3, m4, m5, m6, total, status
+    };
+
+    students.push(student);
+    display();
+}
+
+function display() {
+    let html = "";
+
+    students.forEach(s => {
+        html += `
+        <div class="card">
+            ${s.name} - ${s.total}
+        </div>
+        `;
+    });
+
+    document.getElementById("list").innerHTML = html;
+}
+
+function exportCSV() {
+    let csv = "seat,name,grade,Math,Physics,Chemistry,Biology,English,Computer,total,status\n";
+
+    students.forEach(s => {
+        csv += `${s.seat},${s.name},${s.grade},${s.m1},${s.m2},${s.m3},${s.m4},${s.m5},${s.m6},${s.total},${s.status}\n`;
+    });
+
+    let blob = new Blob([csv], { type: "text/csv" });
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "results.csv";
+    a.click();
+}
+</script>
+
+</body>
+</html>
