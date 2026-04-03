@@ -31,15 +31,9 @@ button {
     background: #00c6ff;
     color: white;
     cursor: pointer;
-    <br><br>
-<button onclick="goTop()">عرض أوائل الطلاب</button>
+    margin: 5px;
+}
 
-<script>
-function goTop() {
-    window.location.href = "top.html"; // ينقلك لصفحة الأوائل
-}
-</script>
-}
 button:hover {
     background: #0072ff;
 }
@@ -59,8 +53,10 @@ button:hover {
     <h1>نتيجة مدرسة Esam Kora</h1>
 
     <input type="text" id="seat" placeholder="ادخل رقم الجلوس">
-    <br><br>
+    <br>
     <button onclick="getResult()">عرض النتيجة</button>
+    <br>
+    <button onclick="goTop()">عرض أوائل الطلاب</button>
 
     <div id="result"></div>
 </div>
@@ -71,9 +67,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCMgXqovKaA6ylpM_3mq6zUAWyrhbA1m2M",
-  authDomain: "students-31340.firebaseapp.com",
-  projectId: "students-31340",
+  apiKey: "PUT_YOUR_KEY",
+  authDomain: "PUT_YOUR_DOMAIN",
+  projectId: "PUT_YOUR_PROJECT_ID",
 };
 
 const app = initializeApp(firebaseConfig);
@@ -126,6 +122,11 @@ window.getResult = async function() {
     } catch (error) {
         resultDiv.innerHTML = "❌ حصل خطأ: " + error;
     }
+}
+
+// زرار أوائل الطلاب
+window.goTop = function() {
+    window.location.href = "top.html";
 }
 </script>
 
