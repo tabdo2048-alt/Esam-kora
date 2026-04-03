@@ -60,7 +60,6 @@ button:hover {
 
     <div id="result"></div>
 </div>
-
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -71,7 +70,22 @@ const firebaseConfig = {
   authDomain: "students-31340.firebaseapp.com",
   projectId: "students-31340",
 };
+function displayStudent(student) {
+  let html = `<h2>${student.name}</h2>`;
 
+  let total = 0;
+
+  for (let sub in student.subjects) {
+    let degree = student.subjects[sub];
+    total += degree;
+
+    html += `<p>${sub}: ${degree}</p>`;
+  }
+
+  html += `<h3>المجموع: ${total}</h3>`;
+
+  document.getElementById("result").innerHTML = html;
+}
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
