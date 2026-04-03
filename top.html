@@ -2,80 +2,99 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الأوائل - Esam Kora</title>
-
+<title>أوائل مدرسة Esam Kora</title>
 <style>
 body {
     font-family: Arial;
-    background: linear-gradient(135deg, #141e30, #243b55);
-    color: white;
+    direction: rtl;
     text-align: center;
+    background: linear-gradient(135deg,#141e30,#243b55);
+    color: white;
 }
-
-h1 {
+.container {
+    margin: 50px auto;
+    width: 90%;
+    max-width: 800px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
     margin-top: 20px;
-}
-
-.card {
     background: rgba(255,255,255,0.1);
-    margin: 15px auto;
-    padding: 15px;
-    width: 300px;
-    border-radius: 10px;
+}
+th, td {
+    padding: 12px;
+    border: 1px solid white;
+}
+th {
+    background: rgba(0,198,255,0.7);
 }
 </style>
-
 </head>
-
 <body>
 
-<h1>🏆 أوائل الطلبة</h1>
+<div class="container">
+    <h1>أوائل مدرسة Esam Kora</h1>
+    <table id="topTable">
+        <thead>
+            <tr>
+                <th>الترتيب</th>
+                <th>اسم الطالب</th>
+                <th>رقم الجلوس</th>
+                <th>الصف</th>
+                <th>المجموع</th>
+                <th>الحالة</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
-<div id="topStudents"></div>
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<script>
-async function loadTopStudents() {
-    let response = await fetch("results.csv");
-    let data = await response.text();
+const firebaseConfig = {
+  apiKey: "AIzaSyCMgXqovKaA6ylpM_3mq6zUAWyrhbA1m2M",
+  authDomain: "students-31340.firebaseapp.com",
+  projectId: "students-31340",
+};
 
-    let rows = data.split("\n").slice(1); // تجاهل العناوين
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
+async function showTop() {
+    let querySnapshot = await getDocs(collection(db, "students"));
     let students = [];
 
-    rows.forEach(row => {
-        if (!row.trim()) return;
-
-        let cols = row.split(",");
-
-        students.push({
-            name: cols[1],
-            total: parseInt(cols[9]) // عمود المجموع
-        });
+    querySnapshot.forEach(doc => {
+        students.push(doc.data());
     });
 
-    // ترتيب تنازلي حسب المجموع
-    students.sort((a, b) => b.total - a.total);
+    // ترتيب الطلاب حسب المجموع تنازلي
+    students.sort((a,b) => b.total - a.total);
 
-    // نجيب أول 5 بس
-    let top = students.slice(0, 5);
+    // عرض أعلى 10
+    let top10 = students.slice(0, 10);
 
-    let html = "";
+    let tbody = document.querySelector("#topTable tbody");
+    tbody.innerHTML = "";
 
-    top.forEach((s, index) => {
-        html += `
-            <div class="card">
-                <h3>🥇 المركز ${index + 1}</h3>
-                <p>${s.name}</p>
-                <p>المجموع: ${s.total}</p>
-            </div>
-        `;
+    top10.forEach((stu, index) => {
+        let row = `<tr>
+            <td>${index+1}</td>
+            <td>${stu.name}</td>
+            <td>${stu.seat}</td>
+            <td>${stu.grade}</td>
+            <td>${stu.total}</td>
+            <td>${stu.status}</td>
+        </tr>`;
+        tbody.innerHTML += row;
     });
-
-    document.getElementById("topStudents").innerHTML = html;
 }
 
-loadTopStudents();
+showTop();
 </script>
 
 </body>
