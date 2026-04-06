@@ -2,132 +2,127 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>أوائل مدرسة Esam Kora</title>
+<title>Admin - أوائل Esam Kora</title>
 <style>
-body {
-    font-family: Arial;
-    direction: rtl;
-    text-align: center;
-    background: linear-gradient(135deg,#141e30,#243b55);
-    color: white;
-}
-.container {
-    margin: 50px auto;
-    width: 90%;
-    max-width: 800px;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background: rgba(255,255,255,0.1);
-}
-th, td {
-    padding: 12px;
-    border: 1px solid white;
-}
-th {
-    background: rgba(0,198,255,0.7);
-}
-select, button {
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 10px;
-    border: none;
-}
-button {
-    background: #00c6ff;
-    color: white;
-    cursor: pointer;
-}
+body { font-family: Arial; direction: rtl; text-align: center; background: linear-gradient(135deg,#141e30,#243b55); color: white; }
+.container { margin: 50px auto; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; width: 90%; max-width: 500px; }
+input, select, button { width: 90%; padding: 10px; margin: 5px; border-radius: 10px; border: none; }
+button { background: #00c6ff; color: white; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>أوائل مدرسة Esam Kora</h1>
+<!-- 🔐 Login -->
+<div class="container" id="loginBox">
+    <h2>تسجيل دخول الأدمن</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">دخول</button>
+    <p id="loginMsg"></p>
+</div>
 
-    <!-- اختيار الصف -->
-    <select id="gradeSelect">
+<!-- 🧠 Admin Panel -->
+<div class="container" id="adminPanel" style="display:none;">
+    <h2>لوحة التحكم - إضافة أوائل</h2>
+
+    <button onclick="logout()">تسجيل خروج</button>
+
+    <select id="grade">
         <option value="1">الصف الأول</option>
         <option value="2">الصف الثاني</option>
     </select>
-    <button onclick="loadTop()">عرض الأوائل</button>
 
-    <table id="topTable">
-        <thead>
-            <tr>
-                <th>الترتيب</th>
-                <th>اسم الطالب</th>
-                <th>رقم الجلوس</th>
-                <th>الصف</th>
-                <th>المجموع</th>
-                <th>الحالة</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <input type="text" id="seat" placeholder="رقم الجلوس">
+    <input type="text" id="name" placeholder="اسم الطالب">
+
+    <input type="number" id="math" placeholder="رياضيات">
+    <input type="number" id="physics" placeholder="فيزياء">
+    <input type="number" id="chemistry" placeholder="كيمياء">
+    <input type="number" id="arabic" placeholder="عربي">
+    <input type="number" id="english" placeholder="إنجليزي">
+    <input type="number" id="integrated" placeholder="علوم متكاملة">
+
+    <button onclick="addTopStudent()">إضافة الطالب</button>
+    <p id="msg"></p>
 </div>
 
-<script>
-// 📄 قراءة CSV
-async function loadCSV(fileName){
-    const response = await fetch(fileName);
-    const text = await response.text();
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    const lines = text.trim().split("\n");
-    const headers = lines.shift().split(",");
+const firebaseConfig = {
+  apiKey: "AIzaSyCMgXqovKaA6ylpM_3mq6zUAWyrhbA1m2M",
+  authDomain: "students-31340.firebaseapp.com",
+  projectId: "students-31340",
+};
 
-    return lines.map(line=>{
-        let obj = {};
-        let data = line.split(",");
-        headers.forEach((h,i)=>{
-            obj[h] = data[i] ? data[i].trim() : "";
-        });
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-        // حساب المجموع لو مش موجود
-        let total = 0;
-        for(let key in obj){
-            if(!["seat","name","grade","total","status"].includes(key) && obj[key] !== ""){
-                total += Number(obj[key]);
-            }
-        }
+// 🔐 تسجيل الدخول
+window.login = function() {
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
 
-        obj.total = obj.total ? Number(obj.total) : total;
-        obj.status = obj.total >= 210 ? "ناجح" : "راسب";
-
-        return obj;
+    signInWithEmailAndPassword(auth, email, password)
+    .catch(() => {
+        document.getElementById("loginMsg").innerText = "❌ بيانات غلط";
     });
 }
 
-// 🎯 عرض الأوائل
-async function loadTop(){
-    let grade = document.getElementById("gradeSelect").value;
-    let fileName = grade == "1" ? "top1.csv" : "top2.csv";
+// 🔄 متابعة حالة تسجيل الدخول
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+    } else {
+        document.getElementById("loginBox").style.display = "block";
+        document.getElementById("adminPanel").style.display = "none";
+    }
+});
 
-    let students = await loadCSV(fileName);
+// 🚪 تسجيل خروج
+window.logout = function() {
+    signOut(auth);
+}
 
-    // ترتيب حسب المجموع
-    students.sort((a,b)=> b.total - a.total);
+// ➕ إضافة طالب للأوائل
+window.addTopStudent = async function() {
+    let seat = document.getElementById("seat").value.trim();
+    let name = document.getElementById("name").value.trim();
+    let grade = document.getElementById("grade").value;
 
-    let top10 = students.slice(0,10);
+    let subjects = {
+        math: Number(document.getElementById("math").value),
+        physics: Number(document.getElementById("physics").value),
+        chemistry: Number(document.getElementById("chemistry").value),
+        arabic: Number(document.getElementById("arabic").value),
+        english: Number(document.getElementById("english").value),
+        integrated: Number(document.getElementById("integrated").value)
+    };
 
-    let tbody = document.querySelector("#topTable tbody");
-    tbody.innerHTML = "";
+    // حساب المجموع للمواد الموجودة فقط
+    let total = 0;
+    for (let sub in subjects) {
+        if (!isNaN(subjects[sub]) && subjects[sub] > 0) total += subjects[sub];
+        else subjects[sub] = undefined;
+    }
 
-    top10.forEach((stu,index)=>{
-        let row = `<tr>
-            <td>${index+1}</td>
-            <td>${stu.name}</td>
-            <td>${stu.seat}</td>
-            <td>${stu.grade}</td>
-            <td>${stu.total}</td>
-            <td>${stu.status}</td>
-        </tr>`;
-        tbody.innerHTML += row;
-    });
+    let status = total >= 210 ? "ناجح" : "راسب";
+
+    let colName = grade === "1" ? "top1" : "top2";
+
+    try {
+        await addDoc(collection(db, colName), {
+            seat, name, grade, subjects, total, status
+        });
+        document.getElementById("msg").innerText = "✅ تم الإضافة للأوائل";
+    } catch (e) {
+        document.getElementById("msg").innerText = "❌ خطأ: " + e;
+    }
 }
 </script>
-
 </body>
 </html>
