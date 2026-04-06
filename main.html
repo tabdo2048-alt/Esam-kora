@@ -66,7 +66,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyCMgXqovKaA6ylpM_3mq6zUAWyrhbA1m2M",
   authDomain: "students-31340.firebaseapp.com",
   projectId: "students-31340",
 };
@@ -107,7 +107,7 @@ async function getCSVData() {
         }
 
         student.total = total;
-        student.status = total >= 210 ? "ناجح" : "راسب";
+        student.status = total >= 140 ? "ناجح" : "راسب"; // من 280
 
         students.push(student);
     }
@@ -118,10 +118,12 @@ async function getCSVData() {
 //////////////////////////////////////////
 // 🎯 عرض الطالب
 //////////////////////////////////////////
-function displayStudent(student) {
+function displayStudent(student, rank) {
     let html = `<div class="card">`;
     html += `<h2>${student.name}</h2>`;
-    html += `<p>الصف: ${student.grade}</p><hr>`;
+    html += `<p>رقم الجلوس: ${student.seat}</p>`;
+    html += `<p>الصف: ${student.grade}</p>`;
+    html += `<p>الترتيب: ${rank}</p><hr>`;
 
     let total = 0;
 
@@ -134,15 +136,15 @@ function displayStudent(student) {
     }
 
     html += `<hr>`;
-    html += `<h3>المجموع: ${total}</h3>`;
-    html += `<h3>الحالة: ${student.status || (total >= 210 ? "ناجح" : "راسب")}</h3>`;
+    html += `<h3>المجموع: ${total} / 280</h3>`;
+    html += `<h3>الحالة: ${student.status || (total >= 140 ? "ناجح" : "راسب")}</h3>`;
     html += `</div>`;
 
     document.getElementById("result").innerHTML = html;
 }
 
 //////////////////////////////////////////
-// 🔍 البحث في CSV + Firebase
+// 🔍 البحث + حساب الترتيب
 //////////////////////////////////////////
 window.getResult = async function() {
     let seat = document.getElementById("seat").value.trim();
@@ -151,25 +153,51 @@ window.getResult = async function() {
     resultDiv.innerHTML = "⏳ جاري البحث...";
 
     try {
-        // 1️⃣ CSV
+        // CSV
         let csvStudents = await getCSVData();
-        let student = csvStudents.find(s => s.seat === seat);
 
-        // 2️⃣ Firebase
-        if (!student) {
-            let querySnapshot = await getDocs(collection(db, "students"));
+        // Firebase
+        let fbStudents = [];
+        let querySnapshot = await getDocs(collection(db, "students"));
 
-            querySnapshot.forEach((doc) => {
-                let data = doc.data();
-                if (data.seat === seat) {
-                    student = data;
+        querySnapshot.forEach((doc) => {
+            let data = doc.data();
+            fbStudents.push(data);
+        });
+
+        // دمج الاتنين
+        let allStudents = [...csvStudents, ...fbStudents];
+
+        // حساب المجموع لو مش موجود
+        allStudents.forEach(stu => {
+            if (!stu.total) {
+                let t = 0;
+                if (stu.subjects) {
+                    for (let s in stu.subjects) {
+                        t += stu.subjects[s];
+                    }
                 }
-            });
+                stu.total = t;
+            }
+        });
+
+        // ترتيب تنازلي
+        allStudents.sort((a,b) => b.total - a.total);
+
+        // البحث + الترتيب
+        let student = null;
+        let rank = null;
+
+        for (let i = 0; i < allStudents.length; i++) {
+            if (allStudents[i].seat === seat) {
+                student = allStudents[i];
+                rank = i + 1;
+                break;
+            }
         }
 
-        // 3️⃣ عرض
         if (student) {
-            displayStudent(student);
+            displayStudent(student, rank);
         } else {
             resultDiv.innerHTML = "❌ رقم الجلوس غير موجود";
         }
